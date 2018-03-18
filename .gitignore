@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+#added by Cris for VS Code
+.vscode/*
+.metadata/*
