@@ -1,15 +1,9 @@
-#ifndef __HOKUYO_C__
-#define __HOKUYO_C__
-#ifndef SOCK_C
-#define SOCK_C
-
 #include <stdlib.h>
 #include <time.h>
 #include "socket.c"
 #include "ros/ros.h"
 #include <ros/console.h>
 #include "sensord_msgs/LaserScan.h"
-//#include <windows.h>
 
 int hokuyoSocket;
 int hokuyoPort = 10940; // default port
@@ -31,12 +25,12 @@ char *footer = "\n\n"; //two line feeds signal end of data
 
 
 void initHokuyo() {
-	shutdown(hokuyoSocket, 2);
+	shutdown(hokuyoSocket, 2); // test comment 1
 	closesocket(hokuyoSocket);
 	hokuyoSocket = initSocket(hokuyoIP, hokuyoPort);              //socket.c
 	sendMsg(hokuyoSocket, startScanMode);
 	getMsg(hokuyoSocket, hokuyoBuffer);
-	ROS_DEBUG("\nHokuyo Opened\n");
+	ROS_DEBUG("Hokuyo Opened");
 }
 
 void shutdownHokuyo() {
@@ -111,9 +105,6 @@ void debugHokuyo() {
 	}
 }
 
-#define TESTME
-#ifdef TESTME
-
 int main(int argc, char **argv) 
 {
 
@@ -169,8 +160,6 @@ int main(int argc, char **argv)
 
 
 
-#endif //TESTME
-#endif //__HOKUYO_C__
 
 
 
@@ -203,7 +192,6 @@ int initSocket(char *ServIP, unsigned short ServPort)
 {
 	struct sockaddr_in ServAddr;    /* Local address */
 	int sock;
-#if !defined(LINUX)
 	{
 		WSADATA wsaData;
 		if (WSAStartup(MAKEWORD(2, 0), &wsaData) != 0) {
@@ -211,7 +199,6 @@ int initSocket(char *ServIP, unsigned short ServPort)
 			//exit(1);
 		}
 	}
-#endif
 	ROS_INFO("serving:  %s:%d\n", ServIP, ServPort);
 	/* Create socket for sending/receiving datagrams */
 	if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
@@ -233,4 +220,3 @@ int initSocket(char *ServIP, unsigned short ServPort)
 	}
 	return 0;
 }
-#endif
