@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nodeHandle;
 
-  ros::Publisher path_pub = nodeHandle.advertise<Octagon2018::Path>("PlannedPathTopicNeedsNameInDiagram@Ethan", 10);
+  ros::Publisher path_pub = nodeHandle.advertise<M-DART::Path>("PlannedPathTopicNeedsNameInDiagram@Ethan", 10);
   // last parameter: queue depth of 10, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
