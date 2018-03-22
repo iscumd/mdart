@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "Figure_8_Path_Generator_node");
+  ros::init(argc, argv, "IGVC_path_planning_node");
   // Q: Should the 3rd argument always be the file name?
 
   ros::NodeHandle nodeHandle;
@@ -16,6 +16,7 @@ int main(int argc, char **argv)
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
     ros::Subscriber subscriber = nodeHandle.subscribe("edges", 1, newLidarDataCallback);
+    ros::Subscriber subscriber = nodeHandle.subscribe("waypoints @Ethan needs new name", 1, newGPSDataCallback);
 
   ros::Rate loop_rate(50);
   // 50 hz publish rate
@@ -25,7 +26,6 @@ int main(int argc, char **argv)
 
     ros::spinOnce();
     // calls newLidarDataCallback if there are messages in it's queue to be run
-
 
 
       Octagon2018::Path msg;
@@ -52,7 +52,16 @@ int main(int argc, char **argv)
   return 0;
 }
 
+
+
 void newLidarDataCallback(const sensor_msg::LaserScan::ConstPtr& scan)
+{
+    // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
+    // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
+    ROS_INFO("PathGenerator Recieved LaserScan: [%s]", scan->ranges[539].c_str());
+}
+
+void newGPSDataCallback(const sensor_msg::LaserScan::ConstPtr& scan)
 {
     // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
     // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
