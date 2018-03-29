@@ -118,7 +118,7 @@ int main(int argc, char **argv) //needed for ROS Functions
 
 	ros::NodeHandle n;
 				//messafe location?
-	wheelInfo = n.advertise<turn_radius::turn>("Zoom", 1000);//used for sending
+	wheelInfo = n.advertise<turn_radius::turn>("wheel_vals", 1000);//used for sending
 	ros::Subscriber sub = n.subscribe("joy", 1000, turnRadius);//used for recieving
 	
 	ros::spin();	
