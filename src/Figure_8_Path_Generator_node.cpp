@@ -1,8 +1,19 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "msg/Path.msg"
-
+#include "geometry_msgs/Twist.h"
+#include "sensor_msgs/LaserScan.h"
+#include "tf/message_filter.h"
+#include "tf/transform_listener.h"
+   
 #include <sstream>
+
+void newLidarDataCallback(const sensor_msgs::LaserScan::ConstPtr& msg_in)
+{
+    // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
+    // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
+//	float center = msg_in->ranges[539];
+ //   ROS_INFO("PathGenerator Received LaserScan: [%s]", center);
+}
 
 int main(int argc, char **argv)
 {
@@ -11,7 +22,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nodeHandle;
 
-  ros::Publisher path_pub = nodeHandle.advertise<M-DART::Path>("da_wae", 1);
+  ros::Publisher path_pub = nodeHandle.advertise<geometry_msgs::Twist>("da_wae", 1);
   // last parameter: queue depth of 1, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
@@ -28,7 +39,7 @@ int main(int argc, char **argv)
 
 
 
-      M-DART::Path msg;
+ //     geometry_msgs::Twist msg;
 
     /*
     float64 speed
@@ -36,11 +47,11 @@ int main(int argc, char **argv)
     float64 distance
     */
 
-      msg.speed = 1;
-      msg.turnRadius = 0;
-      msg.distance = 1;
+   //   msg.speed = 1;
+   //   msg.turnRadius = 0;
+   //   msg.distance = 1;
 
-      path_pub.publish(msg);
+  //    path_pub.publish(msg);
 
 
 
@@ -52,9 +63,3 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void newLidarDataCallback(const sensor_msg::LaserScan::ConstPtr& scan)
-{
-    // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
-    // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
-    ROS_INFO("PathGenerator Recieved LaserScan: [%s]", scan->ranges[539].c_str());
-}

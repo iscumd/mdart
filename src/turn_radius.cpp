@@ -1,5 +1,6 @@
 #include "ros/ros.h"
-#include "turn_radius/turn.h"
+#include "geometry_msgs/Twist.h"
+//#include "turn_radius/turn.h"  // changing from turn to Twist
 
 #include "sensor_msgs/Joy.h"
 
@@ -40,7 +41,9 @@ ros::Publisher wheelInfo;
 enum DriveType{Normal,Omni,Swivel,Circle};
 
 void turnRadius(const sensor_msgs::Joy::ConstPtr& Data){
-	turn_radius::turn msg;
+//	turn_radius::turn msg;
+
+/* need to change turn to twist to follow ROS standards
 	static enum DriveType DriveMode;
 
 	if(Nmode == 1) DriveMode = Normal;
@@ -108,8 +111,8 @@ void turnRadius(const sensor_msgs::Joy::ConstPtr& Data){
 		msg.Axis[2] = Angle;
 		msg.Axis[3] = -Angle;
 	}
-
-	wheelInfo.publish(msg);
+*/
+//	wheelInfo.publish(msg);
 }
 
 int main(int argc, char **argv) //needed for ROS Functions
@@ -117,9 +120,9 @@ int main(int argc, char **argv) //needed for ROS Functions
 	ros::init(argc, argv, "turn_radius"); //start turn_radius node
 
 	ros::NodeHandle n;
-				//messafe location?
-	wheelInfo = n.advertise<turn_radius::turn>("Zoom", 1000);//used for sending
-	ros::Subscriber sub = n.subscribe("joy", 1000, turnRadius);//used for recieving
+				//message location?
+	wheelInfo = n.advertise<geometry_msgs::Twist>("Zoom", 1000);//used for sending
+	ros::Subscriber sub = n.subscribe("joy", 1000, turnRadius);//used for receiving
 	
 	ros::spin();	
 

@@ -34,3 +34,5 @@
 #added by Cris for VS Code
 .vscode/*
 .metadata/*
+RemoteSystemsTempFiles
+*.project

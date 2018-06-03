@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(turn_radius)
+project(mdart)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -52,8 +52,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-##  turn.msg
-Template.MSG
+
+  imu_data.msg
+  Line_Detection.msg
+  path.msg
+  turn.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -156,6 +159,8 @@ include_directories(
 # )
 
 add_executable(turn_radius src/turn_radius.cpp)
+add_executable(Figure_8_Path_Generator_node src/Figure_8_Path_Generator_node.cpp)
+
 add_dependencies(turn_radius ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(turn_radius ${catkin_LIBRARIES})
 
