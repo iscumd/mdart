@@ -1,13 +1,17 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>M-DART</name>
-  <version>0.0.0</version>
-  <description>The M-DART package</description>
+  <name>mdart</name>
+  <version>1.0.0</version>
+  <description>The M-DART ROS package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="pellegreene@todo.todo">pellegreene</maintainer>
+  <maintainer email="isc-robotics@umich.edu">Intelligent Systems Club, University of Michigan-Dearborn</maintainer>
+  <maintainer email="pellegreene@todo.todo">pellefreene</maintainer>
+  <maintainer email="Lmbiye@umich.edu">Lutulu Mbiye</maintainer>
+  <maintainer email="cradam@umich.edu">Cristian Adam</maintainer>
+  
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -49,7 +53,7 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>CamPath</build_depend>
+<!--  <build_depend>CamPath</build_depend>
   <build_depend>GPSPath</build_depend>
   <build_depend>LIDARPath</build_depend>
   <build_depend>RedGreenCircle</build_depend>
@@ -58,11 +62,11 @@
   <build_depend>WheelVals</build_depend>
   <build_depend>WhiteLine</build_depend>
   <build_depend>WinCon</build_depend>
-  <build_depend>obstacles</build_depend>
+  <build_depend>obstacles</build_depend> -->
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_export_depend>CamPath</build_export_depend>
+ <!-- <build_export_depend>CamPath</build_export_depend>
   <build_export_depend>GPSPath</build_export_depend>
   <build_export_depend>LIDARPath</build_export_depend>
   <build_export_depend>RedGreenCircle</build_export_depend>
@@ -71,11 +75,11 @@
   <build_export_depend>WheelVals</build_export_depend>
   <build_export_depend>WhiteLine</build_export_depend>
   <build_export_depend>WinCon</build_export_depend>
-  <build_export_depend>obstacles</build_export_depend>
+  <build_export_depend>obstacles</build_export_depend> -->
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
-  <exec_depend>CamPath</exec_depend>
+<!--  <exec_depend>CamPath</exec_depend>
   <exec_depend>GPSPath</exec_depend>
   <exec_depend>LIDARPath</exec_depend>
   <exec_depend>RedGreenCircle</exec_depend>
@@ -84,7 +88,7 @@
   <exec_depend>WheelVals</exec_depend>
   <exec_depend>WhiteLine</exec_depend>
   <exec_depend>WinCon</exec_depend>
-  <exec_depend>obstacles</exec_depend>
+  <exec_depend>obstacles</exec_depend>  -->
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
