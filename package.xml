@@ -8,7 +8,7 @@
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
   <maintainer email="isc-robotics@umich.edu">Intelligent Systems Club, University of Michigan-Dearborn</maintainer>
-  <maintainer email="pellegreene@todo.todo">pellefreene</maintainer>
+  <maintainer email="pellegreene@todo.todo">gayboy</maintainer>
   <maintainer email="Lmbiye@umich.edu">Lutulu Mbiye</maintainer>
   <maintainer email="cradam@umich.edu">Cristian Adam</maintainer>
   
@@ -66,6 +66,8 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
  <!-- <build_export_depend>CamPath</build_export_depend>
   <build_export_depend>GPSPath</build_export_depend>
   <build_export_depend>LIDARPath</build_export_depend>
@@ -79,6 +81,8 @@
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
 <!--  <exec_depend>CamPath</exec_depend>
   <exec_depend>GPSPath</exec_depend>
   <exec_depend>LIDARPath</exec_depend>
@@ -92,6 +96,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
