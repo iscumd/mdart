@@ -40,7 +40,7 @@ int main(int argc, char **argv)
         */
         ros::spinOnce(); //checks for subscription callbacks to update
 
-        wheelOut.angleFrontLeft = 0; 
+        wheelOut.angleFrontLeft = 0;
         wheelOut.angleFrontRight = 0;
         wheelOut.angleRearLeft = 0;
         wheelOut.angleRearRight = 0;
