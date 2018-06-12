@@ -37,6 +37,8 @@ int main(int argc, char **argv)
     yFrontRight = vehicleHeight/2;
     yRearLeft = -vehicleHeight/2;
     yRearRight = -vehicleHeight/2;
+
+    turnLimit = 2.5;
     
 
     // define name of node and start
@@ -67,29 +69,33 @@ int main(int argc, char **argv)
         */
         ros::spinOnce(); //checks for subscription callbacks to update
 
+        if(imuIn->linear_acceleration_covariance[0] != -1){
+            //do some stuff bc lin accel exists
+        }
+
         turnRadius = 10; // need some function to turn angular z and linear x into turn radius
         // turnRadius = twistIn.angular.z;
 
         if(abs(turnRadius) < vehicleWidth/2){
-            wheelOut.angleFrontLeft = 0;
+            wheelOut.angleFrontLeft  = 0;
             wheelOut.angleFrontRight = 0;
-            wheelOut.angleRearLeft = 0;
-            wheelOut.angleRearRight = 0;
+            wheelOut.angleRearLeft   = 0;
+            wheelOut.angleRearRight  = 0;
 
-            wheelOut.speedFrontLeft =  twistIn.linear.x;
+            wheelOut.speedFrontLeft  = twistIn.linear.x;
             wheelOut.speedFrontRight = twistIn.linear.x;
-            wheelOut.speedRearLeft =   twistIn.linear.x;
-            wheelOut.speedRearRight =  twistIn.linear.x;
+            wheelOut.speedRearLeft   = twistIn.linear.x;
+            wheelOut.speedRearRight  = twistIn.linear.x;
         }else{
-            wheelOut.angleFrontLeft = atan(yFrontLeft / (turnRadius - xFrontLeft));
+            wheelOut.angleFrontLeft  = atan(yFrontLeft / (turnRadius - xFrontLeft));
             wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
-            wheelOut.angleRearLeft = atan(yRearLeft / (turnRadius - xRearLeft));
-            wheelOut.angleRearRight = atan(yRearRight / (turnRadius - xRearRight));
+            wheelOut.angleRearLeft   = atan(yRearLeft / (turnRadius - xRearLeft));
+            wheelOut.angleRearRight  = atan(yRearRight / (turnRadius - xRearRight));
 
-            wheelOut.speedFrontLeft = 0;
+            wheelOut.speedFrontLeft  = 0;
             wheelOut.speedFrontRight = 0;
-            wheelOut.speedRearLeft = 0;
-            wheelOut.speedRearRight = 0;
+            wheelOut.speedRearLeft   = 0;
+            wheelOut.speedRearRight  = 0;
 
         }
 
@@ -112,8 +118,8 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
 void odomCallback(const mdart::WheelVals::ConstPtr& odomCb)
 {
     //
+    lastOdomIn = odomIn;
     odomIn = *odomCb;
-    //
     //ROS_INFO("vehicle_dynamics received the wheel odometry: [%s]", scan->ranges[539].c_str());
 }
 
@@ -122,5 +128,5 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
     //
     imuIn = *imuCb;
     //
-    ROS_INFO("vehicle_dynamics received the imu data: [%f]", imuIn.orientation.x;
+    ROS_INFO("vehicle_dynamics received imu data. y accel:/t [%f]", imuIn.linear_acceleration.y);
 }
