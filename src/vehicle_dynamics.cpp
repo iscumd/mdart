@@ -4,26 +4,27 @@
 #include "geometry_msgs/Twist.h"
 #include <cmath>
 #include <string>
+#include <boost/circular_buffer.hpp>
 
 geometry_msgs::Twist twistIn;
 sensor_msgs::Imu imuIn;
 mdart::WheelVals odomIn;
 mdart::WheelVals wheelOut;
 
-float turnLimit // max G force applied to driver in y-direction
-float vehicleSpeed // placeholder for modified speed
-float vehicleWidth // dimensions to determine vehicle angles and speed
-float vehicleLength // dimensions to determine vehicle angles and speed
-float turnRadius // used for determining wheel angles and velocities
+float turnLimit; // max G force applied to driver in y-direction
+float vehicleSpeed; // placeholder for modified speed
+float vehicleWidth; // dimensions to determine vehicle angles and speed
+float vehicleLength; // dimensions to determine vehicle angles and speed
+float turnRadius; // used for determining wheel angles and velocities
 
-float xFrontLeft
-float xFrontRight
-float xRearLeft
-float xRearRight
-float yFrontLeft
-float yFrontRight
-float yRearLeft
-float yRearRight
+float xFrontLeft;
+float xFrontRight;
+float xRearLeft;
+float xRearRight;
+float yFrontLeft;
+float yFrontRight;
+float yRearLeft;
+float yRearRight;
 
 int main(int argc, char **argv)
 {
@@ -71,12 +72,10 @@ int main(int argc, char **argv)
 
         if(imuIn->linear_acceleration_covariance[0] != -1){
             //do some stuff bc lin accel exists
+            //this is where the speed control should be done
         }
 
-        turnRadius = 10; // need some function to turn angular z and linear x into turn radius
-        // turnRadius = twistIn.angular.z;
-
-        if(abs(turnRadius) < vehicleWidth/2){
+        if(twistIn.angular.z == 0){ // yeah so if you could not divide by zero, that'd be great...
             wheelOut.angleFrontLeft  = 0;
             wheelOut.angleFrontRight = 0;
             wheelOut.angleRearLeft   = 0;
@@ -87,6 +86,8 @@ int main(int argc, char **argv)
             wheelOut.speedRearLeft   = twistIn.linear.x;
             wheelOut.speedRearRight  = twistIn.linear.x;
         }else{
+            turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2); // turn angular z and linear x into turn radius
+            
             wheelOut.angleFrontLeft  = atan(yFrontLeft / (turnRadius - xFrontLeft));
             wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
             wheelOut.angleRearLeft   = atan(yRearLeft / (turnRadius - xRearLeft));
@@ -96,10 +97,7 @@ int main(int argc, char **argv)
             wheelOut.speedFrontRight = 0;
             wheelOut.speedRearLeft   = 0;
             wheelOut.speedRearRight  = 0;
-
         }
-
-        
 
         dynamics_pub.publish(wheelOut);
         loop_rate.sleep()
