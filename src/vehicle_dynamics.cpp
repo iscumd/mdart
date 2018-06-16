@@ -4,19 +4,27 @@
 #include "geometry_msgs/Twist.h"
 #include <cmath>
 #include <string>
-#include <boost/circular_buffer.hpp>
+// may need, may not
+// #include <boost/circular_buffer.hpp>
 
 geometry_msgs::Twist twistIn;
 sensor_msgs::Imu imuIn;
 mdart::WheelVals odomIn;
 mdart::WheelVals wheelOut;
 
-float turnLimit; // max G force applied to driver in y-direction
-float vehicleSpeed; // placeholder for modified speed
+float yAccelerationLimit; // max acceleration applied to driver in y-direction
+//float yAccelerationDiff; // possibly don't need if just inverse works well enough
 float vehicleWidth; // dimensions to determine vehicle angles and speed
 float vehicleLength; // dimensions to determine vehicle angles and speed
-float turnRadius; // used for determining wheel angles and velocities
+float speedLimit;
+float wheelCircumference;
 
+//
+float turnRadius; // used for determining wheel angles and velocities
+float vehicleSpeedMod; // placeholder for modified speed
+float rpmMod;
+
+// holders for vehicle dimensions
 float xFrontLeft;
 float xFrontRight;
 float xRearLeft;
@@ -28,79 +36,95 @@ float yRearRight;
 
 int main(int argc, char **argv)
 {
-    // define some variables
+    // define some stuff -- will probably later be done with rosParams
+    vehicleWidth = 3.0; // m
+    vehicleLength = 3.2; // m
+    wheelCircumference = .4; // m/rev
+    speedLimit = 12; // m/s
+    yAccelerationLimit = 2; // m/s^2
+
+    // calculate some thingies too
+    rpmMod = speedLimit * 60 / wheelCircumference; // rev/min
+    // x coordinates of each wheel in meters
     xFrontLeft = -vehicleWidth/2;
     xFrontRight = vehicleWidth/2;
     xRearLeft = -vehicleWidth/2;
     xRearRight = vehicleWidth/2;
+    // y coordinates of each wheel in meters
+    yFrontLeft = vehicleLength/2;
+    yFrontRight = vehicleLength/2;
+    yRearLeft = -vehicleLength/2;
+    yRearRight = -vehicleLength/2;
 
-    yFrontLeft = vehicleHeight/2;
-    yFrontRight = vehicleHeight/2;
-    yRearLeft = -vehicleHeight/2;
-    yRearRight = -vehicleHeight/2;
-
-    turnLimit = 2.5;
-    
 
     // define name of node and start
     ros::init(argc, argv, "vehicle_dynamics");
-    
     // The first NodeHandle constructed will fully initialize this node
     ros::NodeHandle nodeHandle;
-    
     // define topic name to publish to and queue size
     ros::Publisher dynamicsPub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10) 
-    
     // define topic names to subscribe to and queue size
     ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
     ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);
-    
     // specify loop frequency, works with Rate::sleep to sleep for the correct time
     ros::Rate loop_rate(50)
 
     
     while(ros::ok())
     {
-        // do some stuff to put data in the message
-        /*
-        WheelVals - output - wheels
-        Wheel Odometry - input - something?
-        imu - input - imu
-        arbitrator - input - Twist
-        */
-        ros::spinOnce(); //checks for subscription callbacks to update
+        //checks for subscription callbacks to update
+        ros::spinOnce();
 
-        if(imuIn->linear_acceleration_covariance[0] != -1){
-            //do some stuff bc lin accel exists
-            //this is where the speed control should be done
+        // input modification
+        if((imuIn.linear_acceleration_covariance[0] != -1) && (abs(imuIn.linear_acceleration.y) > yAccelerationLimit)){ // might be imuIn->linear_acceleration_covariance[0]
+            // do some stuff bc lin accel exists
+            // this is where the speed control should be done
+            
+            //yAccelerationDiff = abs(imuIn.linear_acceleration.y) - yAccelerationLimit;
+            //vehicleSpeedMod = yAccelerationLimit / (yAccelerationDiff + yAccelerationLimit);
+            vehicleSpeedMod = yAccelerationLimit / abs(imuIn.linear_acceleration.y);
+
+            ROS_INFO("vehicle_dynamics corrected speed from [%f] to [%f]", twistIn.linear.x, (twistIn.linear.x * vehicleSpeedMod));
+            
+            twistIn.linear.x  *= vehicleSpeedMod;
+            twistIn.angular.z *= vehicleSpeedMod;
         }
 
-        if(twistIn.angular.z == 0){ // yeah so if you could not divide by zero, that'd be great...
+        // input -> output conversion
+        if(twistIn.angular.z == 0){ // Yeah so if you could not divide by zero, that'd be great...
+            // drive straight I guess
             wheelOut.angleFrontLeft  = 0;
             wheelOut.angleFrontRight = 0;
             wheelOut.angleRearLeft   = 0;
             wheelOut.angleRearRight  = 0;
 
+            // yeah just keep driving
             wheelOut.speedFrontLeft  = twistIn.linear.x;
             wheelOut.speedFrontRight = twistIn.linear.x;
             wheelOut.speedRearLeft   = twistIn.linear.x;
             wheelOut.speedRearRight  = twistIn.linear.x;
         }else{
-            turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2); // turn angular z and linear x into turn radius
-            
-            wheelOut.angleFrontLeft  = atan(yFrontLeft / (turnRadius - xFrontLeft));
-            wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
-            wheelOut.angleRearLeft   = atan(yRearLeft / (turnRadius - xRearLeft));
-            wheelOut.angleRearRight  = atan(yRearRight / (turnRadius - xRearRight));
+            // turn angular z and linear x into turn radius
+            turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2);
 
-            wheelOut.speedFrontLeft  = 0;
-            wheelOut.speedFrontRight = 0;
-            wheelOut.speedRearLeft   = 0;
-            wheelOut.speedRearRight  = 0;
+            // I believe you have my stapler.
+            wheelOut.angleFrontLeft  = atan(yFrontLeft  / (turnRadius - xFrontLeft));
+            wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
+            wheelOut.angleRearLeft   = atan(yRearLeft   / (turnRadius - xRearLeft));
+            wheelOut.angleRearRight  = atan(yRearRight  / (turnRadius - xRearRight));
+
+            // Illegal? Samir, this is America!
+            wheelOut.speedFrontLeft  = twistIn.linear.x * sqrt( pow(yFrontLeft,  2) + pow(turnRadius - xFrontLeft,  2) );
+            wheelOut.speedFrontRight = twistIn.linear.x * sqrt( pow(yFrontRight, 2) + pow(turnRadius - xFrontRight, 2) );
+            wheelOut.speedRearLeft   = twistIn.linear.x * sqrt( pow(yRearLeft,   2) + pow(turnRadius - xRearLeft,   2) );
+            wheelOut.speedRearRight  = twistIn.linear.x * sqrt( pow(yRearRight,  2) + pow(turnRadius - xRearRight,  2) );
         }
 
+        // I HAVE PEOPLE SKILLS!
         dynamics_pub.publish(wheelOut);
-        loop_rate.sleep()
+
+        // The thing is, Bob, it's not that I'm lazy, it's that I just don't care. 
+        loop_rate.sleep();
     }
 return 0;
 }
@@ -110,13 +134,13 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     //
     twistIn = *twistCb;
     //
-    //ROS_INFO("vehicle_dynamics received the speed: [%s]", scan->ranges[539].c_str());
+    //ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
 }
 
 void odomCallback(const mdart::WheelVals::ConstPtr& odomCb)
 {
-    //
-    lastOdomIn = odomIn;
+    // tbh don't even know if i'll need this like fr what do i need this for
+    //lastOdomIn = odomIn;
     odomIn = *odomCb;
     //ROS_INFO("vehicle_dynamics received the wheel odometry: [%s]", scan->ranges[539].c_str());
 }
@@ -126,5 +150,5 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
     //
     imuIn = *imuCb;
     //
-    ROS_INFO("vehicle_dynamics received imu data. y accel:/t [%f]", imuIn.linear_acceleration.y);
+    ROS_INFO("vehicle_dynamics received imu data. y accel: [%f]", imuIn.linear_acceleration.y);
 }
