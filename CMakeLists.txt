@@ -53,11 +53,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
+ add_message_files(
+    FILES
+    WheelVals.msg
 #   Message2.msg
-# )
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -74,10 +74,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+  DEPENDENCIES
+  geometry_msgs
+  sensor_msgs
+  std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -111,6 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES M-DART
+  CATKIN_DEPENDS geometry_msgs joy message_runtime roscpp sensor_msgs std_msgs
 #  CATKIN_DEPENDS CamPath GPSPath LIDARPath RedGreenCircle Sanity WaypointsList WheelVals WhiteLine WinCon obstacles roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -155,6 +158,16 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_executable(AVC_path_planner src/AVC_path_planner.cpp)
+add_dependencies(AVC_path_planner ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(AVC_path_planner ${catkin_LIBRARIES})
+
+add_executable(vehicle_dynamics src/vehicle_dynamics.cpp)
+add_dependencies(vehicle_dynamics ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(vehicle_dynamics ${catkin_LIBRARIES})
+
+
 
 #############
 ## Install ##

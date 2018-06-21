@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "geometry_msgs/Twist.msg"
+//#include "geometry_msgs/Twist.msg"
 
 #include <sstream>
 
@@ -15,7 +15,7 @@ int main(int argc, char **argv)
   // last parameter: queue depth of 1, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
-    ros::Subscriber subscriber = nodeHandle.subscribe("lidar_in", 1, newLidarDataCallback);
+//    ros::Subscriber subscriber = nodeHandle.subscribe("lidar_in", 1, newLidarDataCallback);
 
   ros::Rate loop_rate(50);
   // 50 hz publish rate
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
     // calls newLidarDataCallback if there are messages in it's queue to be run
 
-    geometry_msgs::Twist path;
+//    geometry_msgs::Twist path;
 
     /*
     float64 speed
@@ -39,10 +39,10 @@ int main(int argc, char **argv)
  //     msg.distance = 1;
  
  
-msg.linear.x = double(rand())/double(RAND_MAX); // vehicle speed in meters per second
-msg.angular.z = 2*double(rand())/double(RAND_MAX) - 1; // vehicle rotation in radians per second
+//msg.linear.x = double(rand())/double(RAND_MAX); // vehicle speed in meters per second
+//msg.angular.z = 2*double(rand())/double(RAND_MAX) - 1; // vehicle rotation in radians per second
 
-	path_pub.publish(path);
+//	path_pub.publish(path);
 
 
 
@@ -54,9 +54,11 @@ msg.angular.z = 2*double(rand())/double(RAND_MAX) - 1; // vehicle rotation in ra
   return 0;
 }
 
+/*
 void newLidarDataCallback(const sensor_msg::LaserScan::ConstPtr& scan)
 {
     // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
     // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
     ROS_INFO("PathGenerator Received LaserScan: [%s]", scan->ranges[539].c_str());
 }
+*/
