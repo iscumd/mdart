@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "mdart/WheelVals.h"
+//#include "mdart/WheelVals.h"
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/Twist.h"
 #include <cmath>
@@ -9,8 +9,8 @@
 
 geometry_msgs::Twist twistIn;
 sensor_msgs::Imu imuIn;
-mdart::WheelVals odomIn;
-mdart::WheelVals wheelOut;
+//mdart::WheelVals odomIn;
+//mdart::WheelVals wheelOut;
 
 float yAccelerationLimit; // max acceleration applied to driver in y-direction
 //float yAccelerationDiff; // possibly don't need if just inverse works well enough
@@ -62,12 +62,12 @@ int main(int argc, char **argv)
     // The first NodeHandle constructed will fully initialize this node
     ros::NodeHandle nodeHandle;
     // define topic name to publish to and queue size
-    ros::Publisher dynamicsPub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10) 
+//    ros::Publisher dynamicsPub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10) 
     // define topic names to subscribe to and queue size
-    ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
-    ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);
+//    ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
+ //   ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);  imuCallback not declared in scope
     // specify loop frequency, works with Rate::sleep to sleep for the correct time
-    ros::Rate loop_rate(50)
+    ros::Rate loop_rate(50);
 
     
     while(ros::ok())
@@ -93,20 +93,24 @@ int main(int argc, char **argv)
         // input -> output conversion
         if(twistIn.angular.z == 0){ // Yeah so if you could not divide by zero, that'd be great...
             // drive straight I guess
+			/*
             wheelOut.angleFrontLeft  = 0;
             wheelOut.angleFrontRight = 0;
             wheelOut.angleRearLeft   = 0;
             wheelOut.angleRearRight  = 0;
+			
 
             // yeah just keep driving
             wheelOut.speedFrontLeft  = twistIn.linear.x;
             wheelOut.speedFrontRight = twistIn.linear.x;
             wheelOut.speedRearLeft   = twistIn.linear.x;
             wheelOut.speedRearRight  = twistIn.linear.x;
+			
+			*/
         }else{
             // turn angular z and linear x into turn radius
             turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2);
-
+			/*
             // I believe you have my stapler.
             wheelOut.angleFrontLeft  = atan(yFrontLeft  / (turnRadius - xFrontLeft));
             wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
@@ -118,10 +122,11 @@ int main(int argc, char **argv)
             wheelOut.speedFrontRight = twistIn.linear.x * sqrt( pow(yFrontRight, 2) + pow(turnRadius - xFrontRight, 2) );
             wheelOut.speedRearLeft   = twistIn.linear.x * sqrt( pow(yRearLeft,   2) + pow(turnRadius - xRearLeft,   2) );
             wheelOut.speedRearRight  = twistIn.linear.x * sqrt( pow(yRearRight,  2) + pow(turnRadius - xRearRight,  2) );
+			*/
         }
 
         // I HAVE PEOPLE SKILLS!
-        dynamics_pub.publish(wheelOut);
+        //dynamics_pub.publish(wheelOut);
 
         // The thing is, Bob, it's not that I'm lazy, it's that I just don't care. 
         loop_rate.sleep();
@@ -129,6 +134,7 @@ int main(int argc, char **argv)
 return 0;
 }
 
+/*
 void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
 {
     //
@@ -136,7 +142,8 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     //
     //ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
 }
-
+*/
+/*
 void odomCallback(const mdart::WheelVals::ConstPtr& odomCb)
 {
     // tbh don't even know if i'll need this like fr what do i need this for
@@ -144,7 +151,8 @@ void odomCallback(const mdart::WheelVals::ConstPtr& odomCb)
     odomIn = *odomCb;
     //ROS_INFO("vehicle_dynamics received the wheel odometry: [%s]", scan->ranges[539].c_str());
 }
-
+*/
+/*
 void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
 {
     //
@@ -152,3 +160,4 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
     //
     ROS_INFO("vehicle_dynamics received imu data. y accel: [%f]", imuIn.linear_acceleration.y);
 }
+*/
