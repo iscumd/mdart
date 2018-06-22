@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     // The first NodeHandle constructed will fully initialize this node
     ros::NodeHandle nodeHandle;
     // define topic name to publish to and queue size
-    ros::Publisher dynamicsPub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10) 
+    ros::Publisher dynamicsPub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10); 
     // define topic names to subscribe to and queue size
     ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
     ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);
