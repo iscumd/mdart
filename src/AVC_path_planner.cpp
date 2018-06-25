@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nodeHandle;
 
-  ros::Publisher path_pub = nodeHandle.advertise<mdart::Path>("da_wae", 1);
+  ros::Publisher path_pub = nodeHandle.advertise<geometry_msgs::Twist>("da_wae", 1);
   // last parameter: queue depth of 1, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
