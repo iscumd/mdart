@@ -5,6 +5,10 @@
 Useful commands:
 
 rosrun mdart AVC_path_planner
+
 rosrun mdart vehicle_dynamics
+
+
+sudo apt-get install ros-kinetic-urg-node
 
 TODO: Need to define style guide, Bergz does not like the default ROS one

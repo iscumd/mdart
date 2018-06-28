@@ -6,20 +6,90 @@
 #include "mdart/Path.h"
 
 #include <sstream>
+#include <vector>
+
+
+// lidar scan variables
+float start, end, resolution;
+int numPoints;
+float minRange = 1; // must be 1m away to be considered an opening
+//TODO: migrate to ros param file
+
+struct PolarPoint
+{
+	float angle = 0;
+	float distance = 0;
+};
+static PolarPoint tempPoint;
+
+struct Opening 
+{
+  PolarPoint start, end, middle;
+  bool set = false;
+};
+static Opening potentialOpening;
+
+float distanceBetweenPoints(PolarPoint p1, PolarPoint p2)
+{
+	
+	return sqrtf(
+	(p1.distance * p1.distance) +
+	(p2.distance * p2.distance) -
+	(2 * p2.distance * p1.distance * 
+	cosf(p2.angle - p1.angle))
+	);
+	
+}
 
 void newLidarDataCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 {
-    // TODO: use this data, currently writing this node as a stub to test compiling/publishing/subscribing
-    // http://docs.ros.org/api/sensor_msgs/html/msg/LaserScan.html
-    ROS_INFO("PathGenerator Received LaserScan: [%f]", scan->ranges[539]);
-	
-	
-//	float start = scan->angle_min; //radians
-//	float end = scan->angle_max; //radians
-//	float resolution = scan->angle_increment;  //radians
-//	int numPoints = ( angle_max - angle_min ) / angle_increment;
+	start = scan->angle_min; //radians
+	end = scan->angle_max; //radians
+	resolution = scan->angle_increment;  //radians
+	numPoints = ( end - start ) / resolution;
 
-//ROS_INFO("PathGenerator Received LaserScan: [%f]", scan->ranges[(numPoints/2)]);
+	ROS_INFO("PathGenerator Received LaserScan: [%f]", scan->ranges[(numPoints/2)]);
+	
+	std::vector<Opening> openings;
+	
+	potentialOpening.set = false;
+	tempPoint.angle = start;
+	for (int i = 0; i < numPoints; ++i)
+	{
+		tempPoint.angle += resolution;
+		if (scan->ranges[i] > minRange)
+		{
+			if (false == potentialOpening.set)
+			{
+				//1st point in opening
+				
+				tempPoint.distance = scan->ranges[i];
+				potentialOpening.start = tempPoint;
+				potentialOpening.end = tempPoint;
+				potentialOpening.set = true;
+				
+			}
+			else
+			{
+				//move last point to here
+				potentialOpening.end = tempPoint;
+			}
+		}
+		else
+		{
+			if (potentialOpening.set)
+			{
+				
+				//has both start and end
+				if (distanceBetweenPoints)
+					//
+					{
+						
+					}
+						
+			}
+		}
+	}
 }
 
 int main(int argc, char **argv)
@@ -33,7 +103,7 @@ int main(int argc, char **argv)
   // last parameter: queue depth of 1, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
-    ros::Subscriber subscriber = nodeHandle.subscribe("lidar_in", 1, newLidarDataCallback);
+    ros::Subscriber subscriber = nodeHandle.subscribe("scan", 1, newLidarDataCallback);
 
   ros::Rate loop_rate(50);
   // 50 hz publish rate
