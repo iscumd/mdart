@@ -11,4 +11,8 @@ rosrun mdart vehicle_dynamics
 
 sudo apt-get install ros-kinetic-urg-node
 
+git remote add upstream https://github.com/iscumd/mdart.git
+
+git pull upstream master
+
 TODO: Need to define style guide, Bergz does not like the default ROS one
