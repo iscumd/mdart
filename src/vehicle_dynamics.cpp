@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     // The first NodeHandle constructed will fully initialize this node
     ros::NodeHandle nodeHandle;
     // define topic name to publish to and queue size
-    ros::Publisher dynamics_pub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10) ;
+    ros::Publisher dynamics_pub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10);
     // define topic names to subscribe to and queue size
     ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
  //   ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);  imuCallback not declared in scope
@@ -104,16 +104,16 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         // input modification
-        if((imuIn.linear_acceleration_covariance[0] != -1) && (abs(imuIn.linear_acceleration.y) > yAccelerationLimit)){ // might be imuIn->linear_acceleration_covariance[0]
+        if((imuIn.linear_acceleration_covariance[0] != -1) && ((float) abs(imuIn.linear_acceleration.y) > yAccelerationLimit)){ // might be imuIn->linear_acceleration_covariance[0]
             // do some stuff bc lin accel exists
             // this is where the speed control should be done
             
-            //yAccelerationDiff = abs(imuIn.linear_acceleration.y) - yAccelerationLimit;
+            //yAccelerationDiff = (float) abs(imuIn.linear_acceleration.y) - yAccelerationLimit;
             //vehicleSpeedMod = yAccelerationLimit / (yAccelerationDiff + yAccelerationLimit);
-            vehicleSpeedMod = yAccelerationLimit / abs(imuIn.linear_acceleration.y);
+            vehicleSpeedMod = yAccelerationLimit / ((float) abs(imuIn.linear_acceleration.y));
 
             ROS_INFO("vehicle_dynamics corrected speed from [%f] to [%f]", twistIn.linear.x, (twistIn.linear.x * vehicleSpeedMod));
-            
+
             twistIn.linear.x  *= vehicleSpeedMod;
             twistIn.angular.z *= vehicleSpeedMod;
         }
@@ -121,35 +121,33 @@ int main(int argc, char **argv)
         // input -> output conversion
         if(twistIn.angular.z == 0){ // Yeah so if you could not divide by zero, that'd be great...
             // drive straight I guess
-			/*
+			
             wheelOut.angleFrontLeft  = 0;
             wheelOut.angleFrontRight = 0;
             wheelOut.angleRearLeft   = 0;
             wheelOut.angleRearRight  = 0;
-			
-
+            
             // yeah just keep driving
             wheelOut.speedFrontLeft  = twistIn.linear.x;
             wheelOut.speedFrontRight = twistIn.linear.x;
             wheelOut.speedRearLeft   = twistIn.linear.x;
             wheelOut.speedRearRight  = twistIn.linear.x;
 			
-			*/
         }else{
             // turn angular z and linear x into turn radius
             turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2);
 			
             // I believe you have my stapler.
-            wheelOut.angleFrontLeft  = atan(yFrontLeft  / (turnRadius - xFrontLeft));
-            wheelOut.angleFrontRight = atan(yFrontRight / (turnRadius - xFrontRight));
-            wheelOut.angleRearLeft   = atan(yRearLeft   / (turnRadius - xRearLeft));
-            wheelOut.angleRearRight  = atan(yRearRight  / (turnRadius - xRearRight));
+            wheelOut.angleFrontLeft  = ((float) atan(yFrontLeft  / (turnRadius - xFrontLeft)));
+            wheelOut.angleFrontRight = ((float) atan(yFrontRight / (turnRadius - xFrontRight)));
+            wheelOut.angleRearLeft   = ((float) atan(yRearLeft   / (turnRadius - xRearLeft)));
+            wheelOut.angleRearRight  = ((float) atan(yRearRight  / (turnRadius - xRearRight)));
 
             // Illegal? Samir, this is America!
-            wheelOut.speedFrontLeft  = twistIn.linear.x * sqrt( pow(yFrontLeft,  2) + pow(turnRadius - xFrontLeft,  2) );
-            wheelOut.speedFrontRight = twistIn.linear.x * sqrt( pow(yFrontRight, 2) + pow(turnRadius - xFrontRight, 2) );
-            wheelOut.speedRearLeft   = twistIn.linear.x * sqrt( pow(yRearLeft,   2) + pow(turnRadius - xRearLeft,   2) );
-            wheelOut.speedRearRight  = twistIn.linear.x * sqrt( pow(yRearRight,  2) + pow(turnRadius - xRearRight,  2) );
+            wheelOut.speedFrontLeft  = twistIn.linear.x * sqrtf( yFrontLeft * yFrontLeft + (turnRadius - xFrontLeft) * (turnRadius - xFrontLeft) );
+            wheelOut.speedFrontRight = twistIn.linear.x * sqrtf( yFrontRight * yFrontRight + (turnRadius - xFrontRight) * (turnRadius - xFrontRight) );
+            wheelOut.speedRearLeft   = twistIn.linear.x * sqrtf( yRearLeft * yRearLeft + (turnRadius - xRearLeft) * (turnRadius - xRearLeft) );
+            wheelOut.speedRearRight  = twistIn.linear.x * sqrtf( yRearRight * yRearRight + (turnRadius - xRearRight) * (turnRadius - xRearRight) );
 			
         }
 
