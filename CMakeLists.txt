@@ -212,6 +212,10 @@ target_link_libraries(vehicle_dynamics ${catkin_LIBRARIES})
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_M-DART.cpp)
+
+catkin_add_gtest(${PROJECT_NAME}-test test/AVC_path_planner_test.cpp)
+
+
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

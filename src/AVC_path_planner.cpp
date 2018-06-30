@@ -13,6 +13,7 @@
 float start, end, resolution;
 int numPoints;
 float minRange = 1; // must be 1m away to be considered an opening
+float minOpeningWidth = 1.2; // should be vehicle width + tolerance
 //TODO: migrate to ros param file
 
 struct PolarPoint
@@ -31,14 +32,24 @@ static Opening potentialOpening;
 
 float distanceBetweenPoints(PolarPoint p1, PolarPoint p2)
 {
-	
 	return sqrtf(
 	(p1.distance * p1.distance) +
 	(p2.distance * p2.distance) -
 	(2 * p2.distance * p1.distance * 
-	cosf(p2.angle - p1.angle))
+	cosf(abs(p2.angle - p1.angle)))
 	);
-	
+}
+
+void flattenPolarPoints(PolarPoint p1, PolarPoint p2)
+{
+	if (p1.distance > p2.distance)
+	{
+		p1.distance = p2.distance;
+	}
+	else
+	{
+		p2.distance = p1.distance;
+	}
 }
 
 void newLidarDataCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
@@ -81,11 +92,11 @@ void newLidarDataCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
 			{
 				
 				//has both start and end
-				if (distanceBetweenPoints)
-					//
-					{
-						
-					}
+				if (distanceBetweenPoints(potentialOpening.start, potentialOpening.end) >= minOpeningWidth )
+				{
+					// opening is large enough for car to fit through
+					
+				}
 						
 			}
 		}
