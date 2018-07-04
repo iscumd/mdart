@@ -15,4 +15,13 @@ git remote add upstream https://github.com/iscumd/mdart.git
 
 git pull upstream master
 
+Dependency on ros serial added. 
+
+git clone https://github.com/wjwwood/serial.git
+Build:
+make
+
+Install:
+make install
+
 TODO: Need to define style guide, Bergz does not like the default ROS one
