@@ -23,8 +23,12 @@ git remote add upstream https://github.com/iscumd/mdart.git
 
 git pull upstream master
 
-TO-DO:
--
+Dependency on ros serial added:
+git clone https://github.com/wjwwood/serial.git
+Build: make
+Install: make install
+
+TODO: 
 setup ros params
 
 unit testing

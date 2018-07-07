@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   message_generation
+  serial
 )
 
 ## System dependencies are found with CMake's conventions
@@ -169,6 +170,9 @@ add_executable(vehicle_dynamics src/vehicle_dynamics.cpp)
 add_dependencies(vehicle_dynamics ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(vehicle_dynamics ${catkin_LIBRARIES})
 
+add_executable(serial_gateway src/serial_gateway.cpp)
+add_dependencies(serial_gateway ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(serial_gateway ${catkin_LIBRARIES})
 
 
 #############
