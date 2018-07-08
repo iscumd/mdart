@@ -61,28 +61,26 @@ void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
     ROS_INFO("vehicle_dynamics received imu data. y accel: [%f]", imuIn.linear_acceleration.y);
 }
 
-
+ 
 int main(int argc, char **argv)
 {
     // define some stuff -- will probably later be done with rosParams
     vehicleWidth = 3.0; // m
     vehicleLength = 3.2; // m
     wheelCircumference = .4; // m/rev
-    speedLimit = 12; // m/s
+    speedLimit = 4.5; // m/s
     yAccelerationLimit = 2; // m/s^2
 
     // calculate some thingies too
     rpmMod = speedLimit * 60 / wheelCircumference; // rev/min
+
     // x coordinates of each wheel in meters
-    xFrontLeft = -vehicleWidth/2;
-    xFrontRight = vehicleWidth/2;
-    xRearLeft = -vehicleWidth/2;
-    xRearRight = vehicleWidth/2;
+    xFrontRight = vehicleWidth/2; xRearRight = vehicleWidth/2;
+    xFrontLeft = -vehicleWidth/2; xRearLeft = -vehicleWidth/2;
+    
     // y coordinates of each wheel in meters
-    yFrontLeft = vehicleLength/2;
-    yFrontRight = vehicleLength/2;
-    yRearLeft = -vehicleLength/2;
-    yRearRight = -vehicleLength/2;
+    yFrontLeft = vehicleLength/2; yFrontRight = vehicleLength/2;
+    yRearLeft = -vehicleLength/2; yRearRight = -vehicleLength/2;
 
 
     // define name of node and start
@@ -93,7 +91,7 @@ int main(int argc, char **argv)
     ros::Publisher dynamics_pub = nodeHandle.advertise<mdart::WheelVals>("wheels", 10);
     // define topic names to subscribe to and queue size
     ros::Subscriber twistSub = nodeHandle.subscribe("arbitrator_output", 10, twistCallback);
- //   ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);  imuCallback not declared in scope
+    ros::Subscriber imuSub = nodeHandle.subscribe("imu_in", 10, imuCallback);  //imuCallback not declared in scope
     // specify loop frequency, works with Rate::sleep to sleep for the correct time
     ros::Rate loop_rate(50);
 
@@ -128,10 +126,10 @@ int main(int argc, char **argv)
             wheelOut.angleRearRight  = 0;
             
             // yeah just keep driving
-            wheelOut.speedFrontLeft  = twistIn.linear.x;
-            wheelOut.speedFrontRight = twistIn.linear.x;
-            wheelOut.speedRearLeft   = twistIn.linear.x;
-            wheelOut.speedRearRight  = twistIn.linear.x;
+            wheelOut.speedFrontLeft  = rpmMod * twistIn.linear.x;
+            wheelOut.speedFrontRight = rpmMod * twistIn.linear.x;
+            wheelOut.speedRearLeft   = rpmMod * twistIn.linear.x;
+            wheelOut.speedRearRight  = rpmMod * twistIn.linear.x;
 			
         }else{
             // turn angular z and linear x into turn radius
@@ -144,10 +142,10 @@ int main(int argc, char **argv)
             wheelOut.angleRearRight  = ((float) atan(yRearRight  / (turnRadius - xRearRight)));
 
             // Illegal? Samir, this is America!
-            wheelOut.speedFrontLeft  = twistIn.linear.x * sqrtf( yFrontLeft * yFrontLeft + (turnRadius - xFrontLeft) * (turnRadius - xFrontLeft) );
-            wheelOut.speedFrontRight = twistIn.linear.x * sqrtf( yFrontRight * yFrontRight + (turnRadius - xFrontRight) * (turnRadius - xFrontRight) );
-            wheelOut.speedRearLeft   = twistIn.linear.x * sqrtf( yRearLeft * yRearLeft + (turnRadius - xRearLeft) * (turnRadius - xRearLeft) );
-            wheelOut.speedRearRight  = twistIn.linear.x * sqrtf( yRearRight * yRearRight + (turnRadius - xRearRight) * (turnRadius - xRearRight) );
+            wheelOut.speedFrontLeft  = rpmMod * twistIn.linear.x * sqrtf( yFrontLeft * yFrontLeft + (turnRadius - xFrontLeft) * (turnRadius - xFrontLeft) );
+            wheelOut.speedFrontRight = rpmMod * twistIn.linear.x * sqrtf( yFrontRight * yFrontRight + (turnRadius - xFrontRight) * (turnRadius - xFrontRight) );
+            wheelOut.speedRearLeft   = rpmMod * twistIn.linear.x * sqrtf( yRearLeft * yRearLeft + (turnRadius - xRearLeft) * (turnRadius - xRearLeft) );
+            wheelOut.speedRearRight  = rpmMod * twistIn.linear.x * sqrtf( yRearRight * yRearRight + (turnRadius - xRearRight) * (turnRadius - xRearRight) );
 			
         }
 
