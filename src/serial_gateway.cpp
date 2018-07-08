@@ -4,9 +4,17 @@
 #include <std_msgs/Empty.h>
 #include <mdart/WheelVals.h>
 
+#define RPM_MAX				10000
+#define DRIVE_CURRENT_MAX	80
+#define DUTY_CYCYLE_MAX		1
+#define BRAKE_CURRENT_MAX	80
+
+#define SERVO_MUL_FAC		1000
+
 // (UART0_valRxData[2])
 // case 0: DutyCycle(000) data/100000
-
+// (UART0_valRxData[2])
+// case 0: DutyCycle(000) data/100000
 // case 1: Current(100) data/1000
 // case 2: RPM(300) data/1
 // default/3: brake(200) data/1000
@@ -28,10 +36,131 @@ serial::Serial ser;
 ros::Time prevTime;
 
 void write_callback(const mdart::WheelVals::ConstPtr& wheel_vals){
-    uint8_t num;
-    // ROS_INFO_STREAM("Writing VESC data to serial port" << VESC_data);
-    // num = ser.write(VESC_data,28);
-    ROS_INFO("number of bytes %d", num);
+
+    uint8_t ptr = 0, mode = 0,chkSum= 0,i,valWhl,VESC_data[29] = {0};
+    uint32_t angFrL,angFrR,angReL,angReR,valWhlFrL, valWhlFrR,valWhlReL,valWhlReR,mulFac = 0;
+
+    if(wheel_vals->angleFrontLeft < 1){
+    	angFrL = uint16_t(wheel_vals->angleFrontLeft*SERVO_MUL_FAC);
+    }
+    else{
+		angFrL = .5 * SERVO_MUL_FAC;
+    }
+
+    if(wheel_vals->angleFrontRight < 1){
+    	angFrR = uint16_t(wheel_vals->angleFrontRight*SERVO_MUL_FAC);
+    }
+    else{
+		angFrR = .5 * SERVO_MUL_FAC;
+    }
+    
+    if(wheel_vals->angleRearLeft < 1){
+    	angReL = uint16_t(wheel_vals->angleRearLeft*SERVO_MUL_FAC);
+    }
+    else{
+		angReL = .5 * SERVO_MUL_FAC;
+    }
+    
+    if(wheel_vals->angleRearRight < 1){
+    	angReR = uint16_t(wheel_vals->angleRearRight*SERVO_MUL_FAC);
+    }
+    else{
+		angReR = .5 * SERVO_MUL_FAC;
+    }
+
+    VESC_data[ptr++] = 0xA0;
+    VESC_data[ptr++] = 0x1A;
+    VESC_data[ptr++] = mode;
+
+	valWhlFrL = wheel_vals->speedFrontLeft;
+	valWhlFrR = wheel_vals->speedFrontRight;
+	valWhlReL = wheel_vals->speedRearLeft;
+	valWhlReR = wheel_vals->speedRearRight;    
+
+    switch(mode){
+    	case 0:{
+    		mulFac = 100000;
+
+    		if((valWhlFrL > 1)||(valWhlFrR > 1)||(valWhlReL > 1)||(valWhlReR > 1)){
+				valWhlFrL = 0;
+	    		valWhlFrR = 0;
+	    		valWhlReL = 0;
+	    		valWhlReR = 0;
+    		}
+		}
+    	break;
+
+    	case 2:{
+    		mulFac = 1;
+
+    		if((valWhlFrL > RPM_MAX)||(valWhlFrR > RPM_MAX)||(valWhlReL > RPM_MAX)||(valWhlReR > RPM_MAX)){
+				valWhlFrL = 0;
+	    		valWhlFrR = 0;
+	    		valWhlReL = 0;
+	    		valWhlReR = 0;
+    		}
+    	}
+    	break;
+
+    	case 1:
+    	default:{
+    		mulFac = 1000;
+
+    		if((valWhlFrL > DRIVE_CURRENT_MAX)||(valWhlFrR > DRIVE_CURRENT_MAX)||(valWhlReL > DRIVE_CURRENT_MAX)||(valWhlReR > DRIVE_CURRENT_MAX)){
+				valWhlFrL = 0;
+	    		valWhlFrR = 0;
+	    		valWhlReL = 0;
+	    		valWhlReR = 0;
+    		}    		
+    	}
+    }
+
+	// Updating the BLDC motor values
+    valWhl = valWhlFrL *mulFac;
+    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+    VESC_data[ptr++] = (uint8_t)(valWhl);
+    
+    valWhl = valWhlFrR *mulFac;
+    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+    VESC_data[ptr++] = (uint8_t)(valWhl);
+    
+    valWhl = valWhlReR *mulFac;
+   	VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+    VESC_data[ptr++] = (uint8_t)(valWhl);
+    
+    valWhl = valWhlReL*mulFac;
+    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+    VESC_data[ptr++] = (uint8_t)(valWhl);
+
+    // Updating the servo motor values
+    VESC_data[ptr++] = (uint8_t)(angFrL >>8);
+    VESC_data[ptr++] = (uint8_t)(angFrL);
+    
+    VESC_data[ptr++] = (uint8_t)(angFrR >>8);
+    VESC_data[ptr++] = (uint8_t)(angFrR);
+    
+    VESC_data[ptr++] = (uint8_t)(angReR >>8);
+    VESC_data[ptr++] = (uint8_t)(angReR);
+    
+    VESC_data[ptr++] = (uint8_t)(angReL >>8);
+    VESC_data[ptr++] = (uint8_t)(angReL);     
+
+    for(i = 0; i<27;i++){
+    	chkSum = chkSum ^ VESC_data[i];
+    }
+    VESC_data[ptr] = (uint8_t)(chkSum);
+
+    ROS_INFO_STREAM("Writing VESC data to serial port" << VESC_data);
+    ptr = ser.write(VESC_data,28);
+    ROS_INFO("number of bytes %d", ptr);
     prevTime = ros::Time::now();
 }
 
@@ -65,31 +194,26 @@ int main (int argc, char** argv){
 				ser.setPort(port);
 				ROS_INFO_STREAM("Trying to open port " << port);
 
-				try
-				{
+				try{
 					ser.open();
 				}
-				catch (serial::IOException& e)
-				{
+				catch (serial::IOException& e){
 					ROS_ERROR_STREAM("Failed to open port" << port);
 					status = 1;
 				}
-				
-				if(status == 0)
-				{
+		
+				if(status == 0){
 					break;
 				}
 
-				if(i == 255)
-				{
+				if(i == 255){
 					ROS_ERROR_STREAM("No ports are available");
 					return -1;
 				}
 			}
 			ROS_INFO_STREAM("Serial Port initialized on" << port);
 		}
-		else
-		{
+		else{
 			if(ser.available()){
 				ROS_INFO_STREAM("Reading from serial port");
 				std_msgs::String result;
@@ -101,16 +225,78 @@ int main (int argc, char** argv){
 
 			ros::Time currTime = ros::Time::now();
 			ros::Duration diff= currTime-prevTime;
-			if(diff.toSec() > 1)
-			{
-				// uint8_t VESC_data[28]={0xA0,0x1A,0x00,0x00,0x00,0x27,0x10,0x00,0x00,0x27,0x10,
-				// 	0x00,0x00,0x27,0x10,0x00,0x00,0x27,0x10,0x03,0xE8,0x03,0xE8,0x03,0xE8,0x03,0xE8,0xBA};
-				uint8_t VESC_data[28]={0xA0,0x1A,0x03,0x00,0x01,0x86,0xA0,0x00,0x01,0x86,0xA0,
-				 	0x00,0x01,0x86,0xA0,0x00,0x01,0x86,0xA0,0x03,0xE8,0x03,0xE8,0x03,0xE8,0x03,0xE8,0xB9};
-				ROS_INFO_STREAM("Update delayed for more than 2 secs. Perform evasive action"); 	
-    			ROS_INFO_STREAM("Writing failsafe data to serial port" << VESC_data);
-    			ser.write(VESC_data,28);
-    			prevTime = currTime;
+
+			if(diff.toSec() > 1){
+				uint8_t ptr = 0 ,chkSum=0,VESC_data[28]={0};
+				uint16_t mulFac = 1000;
+				uint32_t angFrL,angFrR,angReL,angReR,valWhl;
+				float valWhlFrL,valWhlFrR,valWhlReL,valWhlReR;
+
+				valWhlFrL = BRAKE_CURRENT_MAX;
+				valWhlFrR = BRAKE_CURRENT_MAX;
+				valWhlReL = BRAKE_CURRENT_MAX;
+				valWhlReR = BRAKE_CURRENT_MAX;
+
+				angFrL = 0.99 * SERVO_MUL_FAC;
+				angFrR = 0.00 * SERVO_MUL_FAC;
+				angReL = 0.99 * SERVO_MUL_FAC;
+				angReR = 0.00 * SERVO_MUL_FAC;
+
+	    		VESC_data[ptr++] = 0xA0;
+	    		VESC_data[ptr++] = 0x1A;
+	    		VESC_data[ptr++] = 0x03;
+
+				// Updating the BLDC motor values
+			    valWhl = (uint32_t)(valWhlFrL *mulFac);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+			    VESC_data[ptr++] = (uint8_t)(valWhl);
+			    
+			    valWhl = (uint32_t)(valWhlFrR *mulFac);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+			    VESC_data[ptr++] = (uint8_t)(valWhl);
+			    
+			    valWhl = (uint32_t)(valWhlReR *mulFac);
+			   	VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+			    VESC_data[ptr++] = (uint8_t)(valWhl);
+			    
+			    valWhl = (uint32_t)(valWhlReL*mulFac);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>24);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>16);
+			    VESC_data[ptr++] = (uint8_t)(valWhl >>8);
+			    VESC_data[ptr++] = (uint8_t)(valWhl);
+
+			    // Updating the servo motor values
+			    VESC_data[ptr++] = (uint8_t)(angFrL >>8);
+			    VESC_data[ptr++] = (uint8_t)(angFrL);
+			    
+			    VESC_data[ptr++] = (uint8_t)(angFrR >>8);
+			    VESC_data[ptr++] = (uint8_t)(angFrR);
+			    
+			    VESC_data[ptr++] = (uint8_t)(angReR >>8);
+			    VESC_data[ptr++] = (uint8_t)(angReR);
+			    
+			    VESC_data[ptr++] = (uint8_t)(angReL >>8);
+			    VESC_data[ptr++] = (uint8_t)(angReL);
+
+			    for(i = 0; i<27;i++){
+			    	chkSum = chkSum ^ VESC_data[i];
+			    }
+			    VESC_data[ptr] = (uint8_t)(chkSum);
+
+				ROS_INFO_STREAM("Update delayed for more than 1 secs. Perform evasive action"); 	
+
+				if(diff.toSec() > 1)
+				{
+	    			ROS_INFO_STREAM("Writing failsafe data to serial port" << VESC_data);
+	    			ser.write(VESC_data,28);
+	    			prevTime = currTime;
+				}
 			}
 		}
 		loop_rate.sleep();
