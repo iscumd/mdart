@@ -79,6 +79,7 @@ void write_callback(const mdart::WheelVals::ConstPtr& wheel_vals){
 
     switch(mode){
     	case 0:{
+    		// DutyCycle Mode
     		mulFac = 100000;
 
     		if((valWhlFrL > 1)||(valWhlFrR > 1)||(valWhlReL > 1)||(valWhlReR > 1)){
@@ -91,6 +92,7 @@ void write_callback(const mdart::WheelVals::ConstPtr& wheel_vals){
     	break;
 
     	case 2:{
+    		// RPM Mode
     		mulFac = 1;
 
     		if((valWhlFrL > RPM_MAX)||(valWhlFrR > RPM_MAX)||(valWhlReL > RPM_MAX)||(valWhlReR > RPM_MAX)){
@@ -104,6 +106,7 @@ void write_callback(const mdart::WheelVals::ConstPtr& wheel_vals){
 
     	case 1:
     	default:{
+    		// Current Mode for Motion and Braking 
     		mulFac = 1000;
 
     		if((valWhlFrL > DRIVE_CURRENT_MAX)||(valWhlFrR > DRIVE_CURRENT_MAX)||(valWhlReL > DRIVE_CURRENT_MAX)||(valWhlReR > DRIVE_CURRENT_MAX)){
@@ -165,10 +168,10 @@ void write_callback(const mdart::WheelVals::ConstPtr& wheel_vals){
 }
 
 int main (int argc, char** argv){
-    ros::init(argc, argv, "serial_example_node");
+    ros::init(argc, argv, "serial_gateway_node");
     ros::NodeHandle nh;
     std::string port;
-    int j = 0,i;
+    int i;
     char status = 0;
 
     ros::Subscriber write_sub = nh.subscribe("wheels", 100, write_callback);
@@ -188,13 +191,12 @@ int main (int argc, char** argv){
 		{
 			for(i = 0; i < 256;i ++)
 			{
-				status = 0;
-
 				port = "/dev/ttyUSB"+std::to_string(i);
 				ser.setPort(port);
 				ROS_INFO_STREAM("Trying to open port " << port);
 
 				try{
+					status = 0;
 					ser.open();
 				}
 				catch (serial::IOException& e){
@@ -203,15 +205,15 @@ int main (int argc, char** argv){
 				}
 		
 				if(status == 0){
+					ROS_INFO_STREAM("Serial Port initialized on" << port);
 					break;
 				}
 
 				if(i == 255){
-					ROS_ERROR_STREAM("No ports are available");
-					return -1;
+					ROS_ERROR_STREAM("No ports are available. Gateway function disabled");
+					while(1);
 				}
 			}
-			ROS_INFO_STREAM("Serial Port initialized on" << port);
 		}
 		else{
 			if(ser.available()){
