@@ -28,7 +28,7 @@ static PolarPoint tempPoint;
 
 struct Opening 
 {
-  PolarPoint start, end, middle;
+  PolarPoint start, end; // TODO: check that removing middle didn't break stuff
   bool set = false;
 };
 static Opening potentialOpening;

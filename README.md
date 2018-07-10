@@ -13,6 +13,8 @@ Useful commands:
 -
 rosrun mdart AVC_path_planner
 rosrun mdart vehicle_dynamics
+rosrun mdart serial_gateway
+
 sudo apt-get install ros-kinetic-urg-node
 git remote add upstream https://github.com/iscumd/mdart.git
 git pull upstream master
