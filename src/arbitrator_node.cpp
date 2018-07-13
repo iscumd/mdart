@@ -5,7 +5,7 @@
 #include <string>
 
 geometry_msgs::Twist twistIn;
-geometry_msgs::Twist JoyTwist;
+geometry_msgs::Twist joyTwist;
 geometry_msgs::Twist twistOut;
 sensor_msgs::Joy joyIn;
 /* contents of Joy message
@@ -31,7 +31,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
 {
     //
     joyIn = *joyCb;
-    if(joyIn.button.x = 0){
+    if(joyIn.buttons[0] == 1){
         boostState = !boostState;
     }
     // do some conversions here I guess
@@ -63,8 +63,9 @@ int main(int argc, char **argv)
         //checks for subscription callbacks to update
         ros::spinOnce();
 
-        if(controlState = 1){
+        if(controlState == 1){
             twistOut = twistIn;
+            twistOut.linear.x = 69;
             boostState = false;
         }else{
             twistOut = joyTwist;
