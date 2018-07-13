@@ -40,7 +40,7 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     //
     twistIn = *twistCb;
     //
-    //ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
+    ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
 }
 
 
@@ -150,6 +150,8 @@ int main(int argc, char **argv)
         }
 
         // I HAVE PEOPLE SKILLS!
+
+        //ROS_INFO("vehicle_dynamics published: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
         dynamics_pub.publish(wheelOut);
 
         // The thing is, Bob, it's not that I'm lazy, it's that I just don't care. 

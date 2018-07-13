@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(50);
 
     boostState = false;
-    controlState = false;
+    controlState = true;
     
 
     
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         //checks for subscription callbacks to update
         ros::spinOnce();
 
-        if(controlState == 1){
+        if(controlState == true){
             twistOut = twistIn;
             twistOut.linear.x = 69;
             boostState = false;
