@@ -64,6 +64,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         if(controlState == true){
+
             twistOut = twistIn;
             twistOut.linear.x = 69;
             boostState = false;
