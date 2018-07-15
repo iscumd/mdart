@@ -10,6 +10,7 @@ sensor_msgs::Imu imuIn;
 mdart::WheelVals wheelOut;
 
 // params
+double doubleHolder;
 float yAccelLimit; // max acceleration applied to driver in y-direction
 float vehicleWidth; // dimensions to determine vehicle angles and speed
 float vehicleLength; // dimensions to determine vehicle angles and speed
@@ -65,40 +66,30 @@ int main(int argc, char **argv)
 
 
     // get ros params
-    if(n.getParam("vehicleWidth", vehicleWidth)){
+    if(n.param("vehicleWidth", doubleHolder, 3.0)){
+        vehicleWidth = (float)doubleHolder;
         ROS_INFO("Got vehicleWidth: %f", vehicleWidth);
-    }else{
-        ROS_INFO("Failed to get vehicleWidth param, defaulting to 3");
-        vehicleWidth = 3.0;
-    }
+    }else{ROS_INFO("Failed to get vehicleWidth param, defaulting to 3");}
 
-    if(n.getParam("vehicleLength", vehicleLength)){
+    if(n.param("vehicleLength", doubleHolder, 3.2)){
+        vehicleLength = (float)doubleHolder;
         ROS_INFO("Got vehicleLength: %f", vehicleLength);
-    }else{
-        ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");
-        vehicleLength = 3.2;
-        }
+    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");}
 
-    if(n.getParam("wheelCircumference", wheelCircumference)){
+    if(n.param("wheelCircumference", doubleHolder, .4)){
+        wheelCircumference = (float)doubleHolder;
         ROS_INFO("Got wheelCircumference: %f", wheelCircumference);
-    }else{
-        ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");
-        wheelCircumference = .4;
-        }
+    }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");}
 
-    if(n.getParam("yAccelLimit", yAccelLimit)){
+    if(n.param("yAccelLimit", doubleHolder, 2.0)){
+        yAccelLimit = (float)doubleHolder;
         ROS_INFO("Got yAccelLimit: %f", yAccelLimit);
-    }else{
-        ROS_INFO("Failed to get yAccelLimit param, defaulting to 2");
-        yAccelLimit = 2;
-        }
+    }else{ROS_INFO("Failed to get yAccelLimit param, defaulting to 2");}
 
-    if(n.getParam("speedLimit", speedLimit)){
+    if(n.param("speedLimit", doubleHolder, 4.5)){
+        speedLimit = (float)doubleHolder;
         ROS_INFO("Got speedLimit: %f", speedLimit);
-    }else{
-        ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");
-        speedLimit = 4.5;
-        }
+    }else{ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");}
     
 
     // calculate some thingies too
