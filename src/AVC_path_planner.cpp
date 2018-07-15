@@ -18,6 +18,7 @@ float minOpeningWidth = vehicleWidth * 1.2; // should be vehicle width + toleran
 //TODO: migrate to ros param file
 
 geometry_msgs::Twist path;
+ros::Publisher path_pub;
 
 struct PolarPoint
 {
@@ -189,6 +190,9 @@ void newLidarDataCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
     path.angular.z = (velocity / (potentialOpening.start.angle + potentialOpening.end.angle)) * (vehicleWidth / 2);
   }
   
+  // output path!
+  path_pub.publish(path);
+  
 }
 
 int main(int argc, char **argv)
@@ -198,7 +202,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle nodeHandle;
 
-  ros::Publisher path_pub = nodeHandle.advertise<geometry_msgs::Twist>("da_wae", 1);
+  path_pub = nodeHandle.advertise<geometry_msgs::Twist>("da_wae", 1);
   // last parameter: queue depth of 1, "low" depth as this info will probably become stale relatively fast
   // Q: if the queue fills, messages seem to be discarded - will it discard the oldest message from the queue or the new one attempted to be added to the queue?
 
@@ -211,7 +215,7 @@ int main(int argc, char **argv)
   {
     ros::spinOnce();
     // calls newLidarDataCallback if there are messages in it's queue to be run
-    path_pub.publish(path);
+
     stop(); 
 
     loop_rate.sleep();
