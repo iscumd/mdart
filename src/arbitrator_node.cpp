@@ -16,7 +16,7 @@ int32[] buttons         # the buttons measurements from a joystick
 */
 
 bool boostState;
-bool controlState;
+bool autoState;
 
 
 void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
