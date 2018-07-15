@@ -40,7 +40,7 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     //
     twistIn = *twistCb;
     //
-    ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]",  twistIn.angular.z);
+    ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
 }
 
 
