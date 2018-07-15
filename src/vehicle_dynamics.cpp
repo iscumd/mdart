@@ -65,25 +65,40 @@ int main(int argc, char **argv)
 
 
     // get ros params
-    if(n.param('vehicleWidth', vehicleWidth, 3.0)){
-        ROS_INFO("Got vehicleWidth: %f", vehicleWidth)
-    }else{ROS_INFO("Failed to get vehicleWidth param, defaulting to 3")}
+    if(n.getParam("vehicleWidth", vehicleWidth)){
+        ROS_INFO("Got vehicleWidth: %f", vehicleWidth);
+    }else{
+        ROS_INFO("Failed to get vehicleWidth param, defaulting to 3");
+        vehicleWidth = 3.0;
+    }
 
-    if(n.param('vehicleLength', vehicleLength, 3.2)){
-        ROS_INFO("Got vehicleLength: %f", vehicleLength)
-    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2")}
+    if(n.getParam("vehicleLength", vehicleLength)){
+        ROS_INFO("Got vehicleLength: %f", vehicleLength);
+    }else{
+        ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");
+        vehicleLength = 3.2;
+        }
 
-    if(n.param('wheelCircumference', wheelCircumference, .4)){
-        ROS_INFO("Got wheelCircumference: %f", wheelCircumference)
-    }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .4")}
+    if(n.getParam("wheelCircumference", wheelCircumference)){
+        ROS_INFO("Got wheelCircumference: %f", wheelCircumference);
+    }else{
+        ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");
+        wheelCircumference = .4;
+        }
 
-    if(n.param('yAccelLimit', yAccelLimit, 2)){
-        ROS_INFO("Got yAccelLimit: %f", yAccelLimit)
-    }else{ROS_INFO("Failed to get yAccelLimit param, defaulting to 2")}
+    if(n.getParam("yAccelLimit", yAccelLimit)){
+        ROS_INFO("Got yAccelLimit: %f", yAccelLimit);
+    }else{
+        ROS_INFO("Failed to get yAccelLimit param, defaulting to 2");
+        yAccelLimit = 2;
+        }
 
-    if(n.param('speedLimit', speedLimit, 4.5)){
-        ROS_INFO("Got speedLimit: %f", speedLimit)
-    }else{ROS_INFO("Failed to get speedLimit param, defaulting to 4.5")}
+    if(n.getParam("speedLimit", speedLimit)){
+        ROS_INFO("Got speedLimit: %f", speedLimit);
+    }else{
+        ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");
+        speedLimit = 4.5;
+        }
     
 
     // calculate some thingies too
