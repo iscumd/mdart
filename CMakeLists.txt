@@ -174,6 +174,10 @@ add_executable(serial_gateway src/serial_gateway.cpp)
 add_dependencies(serial_gateway ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries(serial_gateway ${catkin_LIBRARIES})
 
+add_executable(arbitrator_node src/arbitrator_node.cpp)
+add_dependencies(arbitrator_node ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(arbitrator_node ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
