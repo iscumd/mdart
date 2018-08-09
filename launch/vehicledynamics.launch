@@ -1,0 +1,11 @@
+<launch>
+	<!-- arg setting -->
+	<arg name="speed" default="4.5"/>
+	<arg name="accel" default="1"/>
+
+	<!-- node launch shit -->
+	<node pkg="mdart" type="vehicle_dynamics", name="vehicle_dynamics">
+		<param name="speedLimit" value="$(arg speed)"/>
+		<param name="yAccelLimit" value="$(arg accel)"/>
+	</node>
+</launch>
