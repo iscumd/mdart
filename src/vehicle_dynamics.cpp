@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "vehicle_dynamics");
     // The first nodehandle constructed will fully initialize this node
     ros::NodeHandle n;
+    ros::NodeHandle nprivate("~");
     // define topic name to publish to and queue size
     ros::Publisher dynamics_pub = n.advertise<mdart::WheelVals>("wheels", 10);
     // define topic names to subscribe to and queue size
@@ -74,23 +75,23 @@ int main(int argc, char **argv)
     if(n.param("vehicleLength", doubleHolder, 3.2)){
         vehicleLength = (float)doubleHolder;
         ROS_INFO("Got vehicleLength: %f", vehicleLength);
-    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");}
+    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");} 
 
     if(n.param("wheelCircumference", doubleHolder, .4)){
         wheelCircumference = (float)doubleHolder;
         ROS_INFO("Got wheelCircumference: %f", wheelCircumference);
     }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");}
 
-    if(n.param("yAccelLimit", doubleHolder, 2.0)){
+    if(nprivate.param("yAccelLimit", doubleHolder, 2.0)){
         yAccelLimit = (float)doubleHolder;
         ROS_INFO("Got yAccelLimit: %f", yAccelLimit);
     }else{ROS_INFO("Failed to get yAccelLimit param, defaulting to 2");}
 
-    if(n.param("speedLimit", doubleHolder, 4.5)){
+    if(nprivate.param("speedLimit", doubleHolder, 4.5)){
         speedLimit = (float)doubleHolder;
         ROS_INFO("Got speedLimit: %f", speedLimit);
     }else{ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");}
-    
+
 
     // calculate some thingies too
     rpmMod = speedLimit * 60 / wheelCircumference; // rev/min

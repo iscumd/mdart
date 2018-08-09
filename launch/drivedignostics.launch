@@ -1,0 +1,16 @@
+<launch>
+
+    <!-- Arbitrator -->
+    <include file="$(find mdart)/launch/arbitrator.launch">
+        <arg name="arbSpeed" value="4.5"/>
+    </include>
+
+    <!-- Vehicle Dynamics -->
+    <include file="$(find mdart)/launch/vehicledynamics.launch">
+        <arg name="vdSpeed" value="10000"/>
+    </include>
+
+    <!-- Serial -->
+    <node pkg="mdart" type="serial_gateway" name="serial_gateway"/>
+
+</launch>
