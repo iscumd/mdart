@@ -1,5 +1,6 @@
 <launch>
 	<!-- arg setting -->
+<<<<<<< HEAD
 	<arg name="vdSpeed" default="4.5"/>
 	<arg name="vdAccel" default="4"/>
 
@@ -7,5 +8,14 @@
 	<node pkg="mdart" type="vehicle_dynamics" name="vehicle_dynamics">
 		<param name="speedLimit" value="$(arg vdSpeed)"/>
 		<param name="yAccelLimit" value="$(arg vdAccel)"/>
+=======
+	<arg name="speed" default="4.5"/>
+	<arg name="accel" default="1"/>
+
+	<!-- node launch shit -->
+	<node pkg="mdart" type="vehicle_dynamics", name="vehicle_dynamics">
+		<param name="speedLimit" value="$(arg speed)"/>
+		<param name="yAccelLimit" value="$(arg accel)"/>
+>>>>>>> a40f8da28d516a2f1148f01b3b1df5c86492129f
 	</node>
 </launch>
