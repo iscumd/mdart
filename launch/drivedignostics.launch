@@ -1,5 +1,10 @@
 <launch>
 
+    <!-- Public Params -->
+    <param name="vehicleWidth" value="3">
+    <param name="vehicleLength" value="3.2">
+    <param name="wheelCircumference" value=".4">
+
     <!-- Arbitrator -->
     <include file="$(find mdart)/launch/arbitrator.launch">
         <arg name="arbSpeed" value="4.5"/>
@@ -8,6 +13,7 @@
     <!-- Vehicle Dynamics -->
     <include file="$(find mdart)/launch/vehicledynamics.launch">
         <arg name="vdSpeed" value="10000"/>
+        <arg name="vdAccel" value="2"/>
     </include>
 
     <!-- Serial -->
