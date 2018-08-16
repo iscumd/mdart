@@ -39,6 +39,11 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     twistIn = *twistCb;
     //
     ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    if (twistIn.linear.x > speedLimit){
+        twistIn.angular.z *= speedLimit / twistIn.linear.x;
+        twistIn.linear.x = speedLimit;
+        ROS_INFO("vehicle_dynamics modified the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    }
 }
 
 void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
@@ -94,7 +99,7 @@ int main(int argc, char **argv)
 
 
     // calculate some thingies too
-    rpmMod = speedLimit * 60 / wheelCircumference; // rev/min
+    rpmMod = 60 / wheelCircumference; // rev/ m / min
 
     // x coordinates of each wheel in meters
     xFrontRight = vehicleWidth/2; xRearRight = vehicleWidth/2;

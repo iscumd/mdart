@@ -35,14 +35,14 @@ int buttonPower;
 int buttonLS;
 int buttonRS;
 
-int axisLeftHorizontal = 0;
-int axisLeftVertical = 1;
-int axisRightHorizontal = 2;
-int axisRightVertical = 3;
-int axisRT = 4;
-int axisLT = 5;
-int dPadHorizontal = 6;
-int dPadVertical = 7;
+int axisLeftHorizontal;
+int axisLeftVertical;
+int axisRightHorizontal;
+int axisRightVertical;
+int axisRT;
+int axisLT;
+int dPadHorizontal;
+int dPadVertical;
 
 
 
@@ -52,6 +52,12 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     twistIn = *twistCb;
     //
     ROS_INFO("arbitrator received the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    if (twistIn.linear.x > speedLimit){
+        twistIn.angular.z *= speedLimit / twistIn.linear.x;
+        twistIn.linear.x = speedLimit;
+        ROS_INFO("arbitrator modified the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    }
+
 }
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
