@@ -39,6 +39,11 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     twistIn = *twistCb;
     //
     ROS_INFO("vehicle_dynamics received the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    if (twistIn.linear.x > speedLimit){
+        twistIn.angular.z *= speedLimit / twistIn.linear.x;
+        twistIn.linear.x = speedLimit;
+        ROS_INFO("vehicle_dynamics modified the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    }
 }
 
 void imuCallback(const sensor_msgs::Imu::ConstPtr& imuCb)
@@ -56,6 +61,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "vehicle_dynamics");
     // The first nodehandle constructed will fully initialize this node
     ros::NodeHandle n;
+    ros::NodeHandle nprivate("~");
     // define topic name to publish to and queue size
     ros::Publisher dynamics_pub = n.advertise<mdart::WheelVals>("wheels", 10);
     // define topic names to subscribe to and queue size
@@ -74,26 +80,26 @@ int main(int argc, char **argv)
     if(n.param("vehicleLength", doubleHolder, 3.2)){
         vehicleLength = (float)doubleHolder;
         ROS_INFO("Got vehicleLength: %f", vehicleLength);
-    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");}
+    }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");} 
 
     if(n.param("wheelCircumference", doubleHolder, .4)){
         wheelCircumference = (float)doubleHolder;
         ROS_INFO("Got wheelCircumference: %f", wheelCircumference);
     }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");}
 
-    if(n.param("yAccelLimit", doubleHolder, 2.0)){
+    if(nprivate.param("yAccelLimit", doubleHolder, 2.0)){
         yAccelLimit = (float)doubleHolder;
         ROS_INFO("Got yAccelLimit: %f", yAccelLimit);
     }else{ROS_INFO("Failed to get yAccelLimit param, defaulting to 2");}
 
-    if(n.param("speedLimit", doubleHolder, 4.5)){
+    if(nprivate.param("speedLimit", doubleHolder, 4.5)){
         speedLimit = (float)doubleHolder;
         ROS_INFO("Got speedLimit: %f", speedLimit);
     }else{ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");}
-    
+
 
     // calculate some thingies too
-    rpmMod = speedLimit * 60 / wheelCircumference; // rev/min
+    rpmMod = 60 / wheelCircumference; // rev/ m / min
 
     // x coordinates of each wheel in meters
     xFrontRight = vehicleWidth/2; xRearRight = vehicleWidth/2;

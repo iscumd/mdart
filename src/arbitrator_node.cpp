@@ -18,6 +18,33 @@ int32[] buttons         # the buttons measurements from a joystick
 bool boostState;
 bool autoState;
 
+double doubleHolder;
+float speedLimit;
+
+
+//wireless 360 controller mapping
+int buttonA;
+int buttonB;
+int buttonX;
+int buttonY;
+int buttonLB;
+int buttonRB;
+int buttonBack;
+int buttonStart;
+int buttonPower;
+int buttonLS;
+int buttonRS;
+
+int axisLeftHorizontal;
+int axisLeftVertical;
+int axisRightHorizontal;
+int axisRightVertical;
+int axisRT;
+int axisLT;
+int dPadHorizontal;
+int dPadVertical;
+
+
 
 void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
 {
@@ -25,6 +52,12 @@ void twistCallback(const geometry_msgs::Twist::ConstPtr& twistCb)
     twistIn = *twistCb;
     //
     ROS_INFO("arbitrator received the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    if (twistIn.linear.x > speedLimit){
+        twistIn.angular.z *= speedLimit / twistIn.linear.x;
+        twistIn.linear.x = speedLimit;
+        ROS_INFO("arbitrator modified the twist: linear.x = [%f] \tangular.z = [%f]", twistIn.linear.x, twistIn.angular.z);
+    }
+
 }
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
@@ -36,24 +69,20 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
         boostState = true;
     }
 
-    if(joyIn.buttons[0] == 1){ // button to toggle manual/autonomous mode
+    if(joyIn.buttons[buttonX] == 1){ // button to toggle manual/autonomous mode
         autoState = !autoState;
     }
 
-    if(joyIn.buttons[0] == 1){ // deadman switch, needs to be mapped properly
+    if(joyIn.axes[axisLT] != 0){ // deadman switch, switch to greater than something?
         
-        /* placeholder for whenever joy stuff is actually figured out
-        joyTwist.linear.x = 1;
-        joyTwist.angular.z = .25;
-        */
+        joyTwist.linear.x = joyIn.axes[axisLeftVertical] / 32767 * speedLimit;
+        joyTwist.angular.z = joyIn.axes[axisRightHorizontal] / 32767 * speedLimit / 8;
 
     }else{ //if deadman is not held, be immobile
         joyTwist.linear.x = 0;
         joyTwist.angular.z = 0;
     }
 
-    // do some conversions here I guess
-    // joyTwist = stuff;
 }
 
 int main(int argc, char **argv)
@@ -61,19 +90,45 @@ int main(int argc, char **argv)
 
     // define name of node and start
     ros::init(argc, argv, "arbitrator_node");
-    // The first NodeHandle constructed will fully initialize this node
-    ros::NodeHandle nodeHandle;
+    // The first node handle constructed will fully initialize this node
+    ros::NodeHandle n;
     // define topic name to publish to and queue size
-    ros::Publisher arbitrator_pub = nodeHandle.advertise<geometry_msgs::Twist>("arbitrator_output", 10);
+    ros::Publisher arbitrator_pub = n.advertise<geometry_msgs::Twist>("arbitrator_output", 10);
     // define topic names to subscribe to and queue size
-    ros::Subscriber twistSub = nodeHandle.subscribe("da_wae", 10, twistCallback);
-    ros::Subscriber joySub = nodeHandle.subscribe("joy", 10, joyCallback);
+    ros::Subscriber twistSub = n.subscribe("da_wae", 10, twistCallback);
+    ros::Subscriber joySub = n.subscribe("joy", 10, joyCallback);
     // specify loop frequency, works with Rate::sleep to sleep for the correct time
     ros::Rate loop_rate(50);
 
     boostState = false;
     autoState = true;
     
+    int buttonA = 0;
+    int buttonB = 1;
+    int buttonX = 2;
+    int buttonY = 3;
+    int buttonLB = 4;
+    int buttonRB = 5;
+    int buttonBack = 6;
+    int buttonStart = 7;
+    int buttonPower = 8;
+    int buttonLS = 9;
+    int buttonRS = 10;
+
+    int axisLeftHorizontal = 0;
+    int axisLeftVertical = 1;
+    int axisRightHorizontal = 2;
+    int axisRightVertical = 3;
+    int axisRT = 4;
+    int axisLT = 5;
+    int dPadHorizontal = 6;
+    int dPadVertical = 7;
+
+
+    if(n.param("speedLimit", doubleHolder, 4.5)){
+        speedLimit = (float)doubleHolder;
+        ROS_INFO("Got speedLimit: %f", speedLimit);
+    }else{ROS_INFO("Failed to get speedLimit param, defaulting to 4.5");}
     
     while(ros::ok())
     {
@@ -86,7 +141,6 @@ int main(int argc, char **argv)
             boostState = false; // definitely don't want any speed boosts included in this
 
         }else{ // joystick control needs to convert the joy message into a twist
-            
             
             twistOut = joyTwist;
 

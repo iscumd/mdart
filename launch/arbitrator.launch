@@ -1,0 +1,9 @@
+<launch>
+	<!-- arg setting -->
+	<arg name="arbSpeed" default="4.5"/>
+
+	<!-- node launch shit -->
+	<node pkg="mdart" type="arbitrator_node" name="arbitrator_node">
+		<param name="speedLimit" value="$(arg arbSpeed)"/>
+	</node>
+</launch>
