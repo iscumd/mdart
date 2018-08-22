@@ -1,9 +1,14 @@
 <launch>
 
     <!-- Public Params -->
-    <param name="vehicleWidth" value="3">
-    <param name="vehicleLength" value="3.2">
-    <param name="wheelCircumference" value=".4">
+    <param name="vehicleWidth" value="3"/>
+    <param name="vehicleLength" value="3.2"/>
+    <param name="wheelCircumference" value=".4"/>
+    
+    <!-- Joy Node -->
+    <node pkg="joystick_drivers" type="joy_node" name="joy_node">
+    <param name="dev" value="/dev/input/js0">
+    </node>
 
     <!-- Arbitrator -->
     <include file="$(find mdart)/launch/arbitrator.launch">

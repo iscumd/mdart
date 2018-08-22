@@ -75,8 +75,8 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
 
     if(joyIn.axes[axisLT] != 0){ // deadman switch, switch to greater than something?
         
-        joyTwist.linear.x = joyIn.axes[axisLeftVertical] / 32767 * speedLimit;
-        joyTwist.angular.z = joyIn.axes[axisRightHorizontal] / 32767 * speedLimit / 8;
+        joyTwist.linear.x = joyIn.axes[axisLeftVertical] * speedLimit;
+        joyTwist.angular.z = joyIn.axes[axisRightHorizontal] * speedLimit / 8;
 
     }else{ //if deadman is not held, be immobile
         joyTwist.linear.x = 0;
