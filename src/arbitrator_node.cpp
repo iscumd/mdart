@@ -80,11 +80,8 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
         autoState.data = !autoState.data;
     }
     
-<<<<<<< HEAD
-=======
     lastState = joyIn.buttons[7];
 
-<<<<<<< HEAD
     if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
         
         if(joyIn.axes[1] < .15 && joyIn.axes[1] > -.15){
@@ -104,9 +101,8 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
     }else{ //if deadman is not held, be immobile 
         joyTwist.linear.x = 0;
         joyTwist.angular.z = 0;
-=======
->>>>>>> 1c3cbbc39e120ef29d369c8a9d8426dc3cdad296
-    lastState = joyIn.buttons[7];
+    }
+
 
     if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
         

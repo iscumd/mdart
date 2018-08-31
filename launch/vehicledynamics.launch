@@ -2,7 +2,7 @@
 	<!-- arg setting -->
 	<arg name="vdSpeed" default="4.5"/>
 	<arg name="vdAccel" default="4"/>
-	<arg name="vdScrubRad" default=".0762"/>
+	<arg name="vdScrubRad" default=".127"/>
 	
 	<!-- node launch shit -->
 	<node pkg="mdart" type="vehicle_dynamics" name="vehicle_dynamics">
