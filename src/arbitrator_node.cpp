@@ -2,6 +2,7 @@
 #include "sensor_msgs/Joy.h"
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/Bool.h"
+#include "std_msgs/Float64.h"
 #include <cmath>
 #include <string>
 
@@ -22,6 +23,7 @@ int32[] buttons         # the buttons measurements from a joystick
 bool lastState;
 
 double doubleHolder;
+float floatHolder;
 float speedLimit;
 
 
@@ -77,26 +79,28 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
     if(joyIn.buttons[7] == 1 && lastState == 0){ // button to toggle manual/autonomous mode
         autoState.data = !autoState.data;
     }
-
+    
     lastState = joyIn.buttons[7];
 
     if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
         
-        if(abs(joyIn.axes[1]) < .15){
+        if(joyIn.axes[1] < .15 && joyIn.axes[1] > -.15){
             joyTwist.linear.x = 0;
         }else{
-            joyTwist.linear.x = joyIn.axes[1];
+            joyTwist.linear.x = joyIn.axes[1]*4.5;
         }
 
-        if(abs(joyIn.axes[3]) < .15){
+        if(joyIn.axes[3] < .15 && joyIn.axes[3] > -.15){
             joyTwist.angular.z = 0;
+        }else if(joyTwist.linear.x != 0){
+            joyTwist.angular.z = -joyIn.axes[3]*joyTwist.linear.x/4;
         }else{
-            joyTwist.angular.z = joyIn.axes[3];
+            joyTwist.angular.z = -joyIn.axes[3]*.15*4.5/4;
         }
 
-    }else{ //if deadman is not held, be immobile
-        joyTwist.linear.x = .1;
-        joyTwist.angular.z = .1;
+    }else{ //if deadman is not held, be immobile 
+        joyTwist.linear.x = 0;
+        joyTwist.angular.z = 0;
     }
 
 }
