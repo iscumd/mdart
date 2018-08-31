@@ -102,8 +102,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
         joyTwist.linear.x = 0;
         joyTwist.angular.z = 0;
     }
-    
-    lastState = joyIn.buttons[7];
+
 
     if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
         
