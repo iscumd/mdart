@@ -2,7 +2,10 @@
 #include "sensor_msgs/Joy.h"
 #include "geometry_msgs/Twist.h"
 #include "std_msgs/Bool.h"
+<<<<<<< HEAD
 #include "std_msgs/Float64.h"
+=======
+>>>>>>> 3c3fb317433fefe084725ecca22b93d9b8164c46
 #include <cmath>
 #include <string>
 
@@ -82,6 +85,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
     
     lastState = joyIn.buttons[7];
 
+<<<<<<< HEAD
     if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
         
         if(joyIn.axes[1] < .15 && joyIn.axes[1] > -.15){
@@ -101,6 +105,27 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joyCb)
     }else{ //if deadman is not held, be immobile 
         joyTwist.linear.x = 0;
         joyTwist.angular.z = 0;
+=======
+    lastState = joyIn.buttons[7];
+
+    if(joyIn.axes[2] < 0){ // deadman switch, switch to greater than something?
+        
+        if(abs(joyIn.axes[1]) < .15){
+            joyTwist.linear.x = 0;
+        }else{
+            joyTwist.linear.x = joyIn.axes[1];
+        }
+
+        if(abs(joyIn.axes[3]) < .15){
+            joyTwist.angular.z = 0;
+        }else{
+            joyTwist.angular.z = joyIn.axes[3];
+        }
+
+    }else{ //if deadman is not held, be immobile
+        joyTwist.linear.x = .1;
+        joyTwist.angular.z = .1;
+>>>>>>> 3c3fb317433fefe084725ecca22b93d9b8164c46
     }
 
 }
