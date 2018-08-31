@@ -21,6 +21,9 @@ float wheelCircumference;
 float turnRadius; // used for determining wheel angles and velocities
 float vehicleSpeedMod; // placeholder for modified speed
 float rpmMod; // for converting m/s to rpm
+float scrubRadius;
+float scrubRight;
+float scrubLeft;
 
 // holders for vehicle dimensions
 float xFrontLeft;
@@ -82,10 +85,15 @@ int main(int argc, char **argv)
         ROS_INFO("Got vehicleLength: %f", vehicleLength);
     }else{ROS_INFO("Failed to get vehicleLength param, defaulting to 3.2");} 
 
-    if(n.param("wheelCircumference", doubleHolder, .4)){
+    if(n.param("wheelCircumference", doubleHolder, 0.638)){
         wheelCircumference = (float)doubleHolder;
         ROS_INFO("Got wheelCircumference: %f", wheelCircumference);
-    }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .4");}
+    }else{ROS_INFO("Failed to get wheelCircumference param, defaulting to .638");}
+
+    if(nprivate.param("scrubRadius", doubleHolder, 0.0762)){
+        scrubRadius = (float)doubleHolder;
+        ROS_INFO("Got scrubRadius: %f", scrubRadius);
+    }else{ROS_INFO("Failed to get scrubRadius param, defaulting to 0.0762");}
 
     if(nprivate.param("yAccelLimit", doubleHolder, 2.0)){
         yAccelLimit = (float)doubleHolder;
@@ -145,21 +153,45 @@ int main(int argc, char **argv)
             wheelOut.speedRearLeft   = rpmMod * twistIn.linear.x;
             wheelOut.speedRearRight  = rpmMod * twistIn.linear.x;
 			
+        }else if(twistIn.linear.x == 0){
+            
+            turnRadius = (.15 * 4.5 / twistIn.angular.z) * (vehicleWidth / 2);
+
+            wheelOut.speedFrontLeft  = 0;
+            wheelOut.speedFrontRight = 0;
+            wheelOut.speedRearLeft   = 0;
+            wheelOut.speedRearRight  = 0;
+
+            wheelOut.angleFrontLeft  = ((float) atan(yFrontLeft  / (turnRadius - xFrontLeft))) * 180 / 3.14159;
+            wheelOut.angleFrontRight = ((float) atan(yFrontRight / (turnRadius - xFrontRight))) * 180 / 3.14159;
+            wheelOut.angleRearLeft   = ((float) atan(yRearLeft   / (turnRadius - xRearLeft))) * 180 / 3.14159;
+            wheelOut.angleRearRight  = ((float) atan(yRearRight  / (turnRadius - xRearRight))) * 180 / 3.14159;
+
         }else{
+            
             // turn angular z and linear x into turn radius
+
             turnRadius = (twistIn.linear.x / twistIn.angular.z) * (vehicleWidth / 2);
 			
+            if(turnRadius < 0){
+                scrubLeft = -scrubRadius;
+                scrubRight = scrubRadius;
+            }else{
+                scrubLeft = scrubRadius;
+                scrubRight = -scrubRadius;
+            }
+
             // I believe you have my stapler.
-            wheelOut.angleFrontLeft  = ((float) atan(yFrontLeft  / (turnRadius - xFrontLeft)));
-            wheelOut.angleFrontRight = ((float) atan(yFrontRight / (turnRadius - xFrontRight)));
-            wheelOut.angleRearLeft   = ((float) atan(yRearLeft   / (turnRadius - xRearLeft)));
-            wheelOut.angleRearRight  = ((float) atan(yRearRight  / (turnRadius - xRearRight)));
+            wheelOut.angleFrontLeft  = ((float) atan(yFrontLeft  / (turnRadius - xFrontLeft))) * 180 / 3.14159;
+            wheelOut.angleFrontRight = ((float) atan(yFrontRight / (turnRadius - xFrontRight))) * 180 / 3.14159;
+            wheelOut.angleRearLeft   = ((float) atan(yRearLeft   / (turnRadius - xRearLeft))) * 180 / 3.14159;
+            wheelOut.angleRearRight  = ((float) atan(yRearRight  / (turnRadius - xRearRight))) * 180 / 3.14159;
 
             // Illegal? Samir, this is America!
-            wheelOut.speedFrontLeft  = rpmMod * twistIn.linear.x * sqrtf( yFrontLeft * yFrontLeft + (turnRadius - xFrontLeft) * (turnRadius - xFrontLeft) );
-            wheelOut.speedFrontRight = rpmMod * twistIn.linear.x * sqrtf( yFrontRight * yFrontRight + (turnRadius - xFrontRight) * (turnRadius - xFrontRight) );
-            wheelOut.speedRearLeft   = rpmMod * twistIn.linear.x * sqrtf( yRearLeft * yRearLeft + (turnRadius - xRearLeft) * (turnRadius - xRearLeft) );
-            wheelOut.speedRearRight  = rpmMod * twistIn.linear.x * sqrtf( yRearRight * yRearRight + (turnRadius - xRearRight) * (turnRadius - xRearRight) );
+            wheelOut.speedFrontLeft  = rpmMod * twistIn.linear.x * (sqrtf( yFrontLeft * yFrontLeft + (turnRadius - xFrontLeft) * (turnRadius - xFrontLeft)) + scrubLeft) / abs(turnRadius);
+            wheelOut.speedFrontRight = rpmMod * twistIn.linear.x * (sqrtf( yFrontRight * yFrontRight + (turnRadius - xFrontRight) * (turnRadius - xFrontRight)) + scrubRight) / abs(turnRadius);
+            wheelOut.speedRearLeft   = rpmMod * twistIn.linear.x * (sqrtf( yRearLeft * yRearLeft + (turnRadius - xRearLeft) * (turnRadius - xRearLeft)) + scrubLeft) / abs(turnRadius);
+            wheelOut.speedRearRight  = rpmMod * twistIn.linear.x * (sqrtf( yRearRight * yRearRight + (turnRadius - xRearRight) * (turnRadius - xRearRight)) + scrubRight) / abs(turnRadius);
 			
         }
 
