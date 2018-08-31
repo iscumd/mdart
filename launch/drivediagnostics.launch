@@ -1,8 +1,8 @@
 <launch>
 
     <!-- Public Params -->
-    <param name="vehicleWidth" value="1"/>
-    <param name="vehicleLength" value="1"/>
+    <param name="vehicleWidth" value="0.6731"/>
+    <param name="vehicleLength" value="0.8255"/>
     <param name="wheelCircumference" value="0.638"/>
     
     <!-- Joy Node -->
